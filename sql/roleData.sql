@@ -26,7 +26,7 @@ begin
            value
       from openstring(value isnull(@roleData,''))
            with([key] long varchar, value long varchar)
-           option(delimited by '=' row delimited by '&') as t;
+           option(delimited by '=' row delimited by '|') as t;
 
 end
 ;
