@@ -12,6 +12,7 @@ begin
     if @result is null then
         set @result = util.unactGet(util.getUserOption('uoauthurl')
                                        + '/roles?access_token='+@code);
+                                       
         if exists(select *
                     from openxml(@result,'/*:response/*:roles/*:role')
                          with(code long varchar '*:code')
@@ -23,7 +24,19 @@ begin
                    (select dateadd(second, expiresIn, ts)
                       from openxml(@result,'/*:response/*:token')
                            with(ts datetime '*:ts', expiresIn integer '*:expiresIn')) as expireTs;
-              
+                           
+            insert into uac.account on existing update with auto name       
+            select id,
+                   name,
+                   email,
+                   code
+              from openxml(@result, '/*:response/*:account')
+                   with(
+                        id long varchar '*:id',
+                        name long varchar '*:name',
+                        email long varchar '*:email',
+                        code long varchar '*:code');
+
         end if;
         
     end if;
