@@ -23,7 +23,10 @@ begin
                    @result as roles,
                    (select dateadd(second, expiresIn, ts)
                       from openxml(@result,'/*:response/*:token')
-                           with(ts datetime '*:ts', expiresIn integer '*:expiresIn')) as expireTs;
+                           with(ts datetime '*:ts', expiresIn integer '*:expiresIn')) as expireTs,
+                   (select id
+                    from openxml(@result, '/*:response/*:account')
+                   with(id long varchar '*:id')) as account;
                            
             insert into uac.account on existing update with auto name       
             select id,
