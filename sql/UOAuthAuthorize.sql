@@ -1,4 +1,6 @@
-create or replace function uac.UOAuthAuthorize(@code long varchar)
+create or replace function uac.UOAuthAuthorize(
+    @code long varchar
+)
 returns xml
 begin
     declare @result xml;
@@ -8,6 +10,11 @@ begin
       from uac.token
      where token = @code
        and expireTs > now();
+       
+    if isnull(@code,'') = '' then
+        set @result = xmlelement('error', 'Token required');
+        return @result;
+    end if;
        
     if @result is null then
         set @result = util.unactGet(util.getUserOption('uoauthurl')
