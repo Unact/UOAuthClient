@@ -39,7 +39,7 @@ begin
             select id,
                    name,
                    email,
-                   code
+                   isnull(code,email) as code
               from openxml(@result, '/*:response/*:account')
                    with(
                         id long varchar '*:id',
