@@ -1,4 +1,4 @@
-create or replace function uac.account(
+create or replace function uac.accountInfo(
     @token long varchar,
     @property long varchar default 'id'
 ) returns STRING
