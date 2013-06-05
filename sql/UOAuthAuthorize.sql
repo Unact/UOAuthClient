@@ -28,7 +28,7 @@ begin
             insert into uac.token with auto name
             select @code as token,
                    @result as roles,
-                   (select dateadd(second, expiresIn, ts)
+                   (select dateadd(second, expiresIn, now())
                       from openxml(@result,'/*:response/*:token')
                            with(ts datetime '*:ts', expiresIn integer '*:expiresIn')) as expireTs,
                    (select id
