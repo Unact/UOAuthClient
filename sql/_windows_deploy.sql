@@ -4,3 +4,4 @@ read "C:\Sites\UOAuthClient\sql\roleData.sql";
 read "C:\Sites\UOAuthClient\sql\temporaryTables.sql";
 read "C:\Sites\UOAuthClient\sql\tokenRoles.sql";
 read "C:\Sites\UOAuthClient\sql\UOAuthAuthorize.sql";
+read "C:\Sites\UOAuthClient\sql\UOAuthRefreshToken.sql";

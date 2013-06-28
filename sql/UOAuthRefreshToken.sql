@@ -10,7 +10,7 @@ begin
     set @result = util.unactGet(util.getUserOption('uoauthurl')
                                    + '/token?refresh_token=' + @refreshToken
                                    + '&client_id=' + @clientId
-                                   + '&client_secret=' + @clientSecret);   
+                                   + '&client_secret=' + @clientSecret);
     
     return @result;
 end
