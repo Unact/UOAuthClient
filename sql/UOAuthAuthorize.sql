@@ -1,9 +1,10 @@
 create or replace function uac.UOAuthAuthorize(
-    @code long varchar
+    @code STRING
 )
 returns xml
 begin
     declare @result xml;
+    declare @id ID;
     
     select roles
       into @result
@@ -34,6 +35,15 @@ begin
                    (select id
                     from openxml(@result, '/*:response/*:account')
                    with(id long varchar '*:id')) as account;
+                   
+            set @id = (select id from uac.token where token = @code);
+            
+            insert into uac.tokenRole with auto name
+            select @id as token,
+                   code,
+                   data
+              from openxml(@result, '/*:response/*:roles/*:role')
+                  with(code long varchar '*:code', data long varchar '*:data');
                            
             insert into uac.account on existing update with auto name       
             select id,
