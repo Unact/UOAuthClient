@@ -26,8 +26,11 @@ begin
                          with(code long varchar '*:code')
                    where code = 'authenticated') then
                    
-            insert into uac.token with auto name
-            select @code as token,
+            insert into uac.token on existing update with auto name
+            select (select id
+                      from uac.token
+                     where token = @code) as id,
+                   @code as token,
                    @result as roles,
                    (select dateadd(second, expiresIn, now())
                       from openxml(@result,'/*:response/*:token')
