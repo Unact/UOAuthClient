@@ -18,12 +18,17 @@ begin
     end if;
     
     if @result is null then
-        
-        set @result = util.unactGet(
-            util.getUserOption('uoauthurl')
-            + '/roles?access_token='+@code
-        );
-        
+    
+    
+        if isnull(util.getUserOption('uac.emailAuth'),'0') = '0' then    
+            set @result = util.unactGet(
+                util.getUserOption('uoauthurl')
+                + '/roles?access_token='+@code
+            );
+        else
+            set @result = eac.authorize(@code);
+        end if;
+            
         if exists(
             select * from openxml(@result,'/*:response/*:roles/*:role') with(
                 code long varchar '*:code'
@@ -41,7 +46,7 @@ begin
                 ) as id,
                 @code as token,
                 @result as roles,
-                (select dateadd(second, expiresIn, now())
+                (select dateadd(second, isnull(expiresIn, 3600), now())
                     from openxml(@result,'/*:response/*:token')
                         with(ts datetime '*:ts', expiresIn integer '*:expiresIn')
                 ) as expireTs,
@@ -62,13 +67,14 @@ begin
             insert into uac.account on existing update with auto name       
             select
                 id,
-                name,
+                isnull(name, username) as name,
                 email,
                 isnull(code,email) as code
             from openxml(@result, '/*:response/*:account')
                 with(
                      id long varchar '*:id',
                      name long varchar '*:name',
+                     username long varchar '*:username',
                      email long varchar '*:email',
                      code long varchar '*:code'
                 )
