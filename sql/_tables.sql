@@ -7,10 +7,14 @@ create table uac.account(
     name varchar(512) not null,
     email varchar(512) not null,
     code varchar(512) not null,
+    
+    domainId varchar(512) not null,
+    
+    unique (domainId),
 
     xid GUID, ts TS, cts CTS,
     unique (xid), primary key (id)
 );
 
-comment on table uac.account is 'UOAuth cashed account info'
+comment on table uac.account is 'UOAuth cached account info'
 ;
