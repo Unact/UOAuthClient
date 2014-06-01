@@ -1,5 +1,6 @@
 create or replace function uac.UOAuthAuthorize(
-    @code STRING
+    @code STRING,
+    @domain STRING default uac.tokenDomain(@code)
 ) returns xml
 begin
     declare @roles xml;
@@ -21,7 +22,7 @@ begin
         
         if isnull(util.getUserOption('uac.emailAuth'),'0') = '0' then    
             set @roles = util.unactGet(
-                util.getUserOption('uoauthurl')
+                uac.tokenDomainUrl (@domain)
                 + '/roles?access_token='+@code
             );
         else
@@ -34,8 +35,34 @@ begin
             ) where code = 'authenticated'
         ) then
             
-            message 'uac.UOAuthAuthorize @code=', @code
+            message 'uac.UOAuthAuthorize @code=', @code, ' @domain=', @domain
                 DEBUG ONLY
+            ;
+            
+            merge into uac.account
+                using with auto name (
+                    select
+                        --id,
+                        isnull(a.name, a.username) as name,
+                        isnull(email, string (coalesce(a.username,a.id,a.code),'@',@domain)) as email,
+                        isnull(a.code,a.email) as code,
+                        string (
+                            coalesce(a.id,a.code,a.username),
+                            '@',
+                            @domain
+                        ) as domainId
+                    from openxml(@roles, '/*:response/*:account')
+                        with(
+                            id long varchar '*:id',
+                            name long varchar '*:name',
+                            username long varchar '*:username',
+                            email long varchar '*:email',
+                            code long varchar '*:code'
+                        ) as a
+                ) as rolesAccount
+                on rolesAccount.domainId = account.domainId
+                when not matched then insert
+                when matched then update
             ;
             
             insert into uac.token on existing update with auto name select
@@ -49,12 +76,22 @@ begin
                     from openxml(@roles,'/*:response/*:token')
                         with(ts datetime '*:ts', expiresIn integer '*:expiresIn')
                 ) as expireTs,
-                (select id
-                    from openxml(@roles, '/*:response/*:account')
-                        with(id long varchar '*:id')
-                ) as account
+                (select id from uac.account where domainId = (
+                    select string (
+                        coalesce(id,code,username),
+                        '@',
+                        @domain
+                    ) from openxml(@roles, '/*:response/*:account')
+                    with(
+                        id long varchar '*:id',
+                        name long varchar '*:name',
+                        username long varchar '*:username',
+                        email long varchar '*:email',
+                        code long varchar '*:code'
+                    )
+                )) as account
             ;
-                
+            
             set @id = (select id from uac.token where token = @code);
             
             insert into uac.tokenRole with auto name select
@@ -62,22 +99,6 @@ begin
             from openxml(@roles, '/*:response/*:roles/*:role') with(
                 code long varchar '*:code', data long varchar '*:data'
             );
-            
-            insert into uac.account on existing update with auto name
-            select
-                id,
-                isnull(name, username) as name,
-                email,
-                isnull(code,email) as code
-            from openxml(@roles, '/*:response/*:account')
-                with(
-                     id long varchar '*:id',
-                     name long varchar '*:name',
-                     username long varchar '*:username',
-                     email long varchar '*:email',
-                     code long varchar '*:code'
-                )
-            ;
             
         end if;
         
