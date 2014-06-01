@@ -3,7 +3,7 @@ grant dba to uac;
 
 create table uac.account(
 
-    id integer not null,
+    id ID,
     name varchar(512) not null,
     email varchar(512) not null,
     code varchar(512) not null,
