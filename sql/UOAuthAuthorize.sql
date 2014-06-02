@@ -10,7 +10,7 @@ begin
         into @roles
         from uac.token
     where token = @code
-        and expireTs > now()
+        and (expireTs > now() or expireTs is null)
     ;
     
     if isnull(@code,'') = '' then
