@@ -1,6 +1,6 @@
 create or replace procedure uac.tokenRole (
     @roleCode STRING,
-    @UACToken STRING default uac.HTTPVariableOrHeader ()
+    @UACToken STRING default util.HTTPVariableOrHeader ()
 )
 begin
 
