@@ -4,11 +4,11 @@ create or replace procedure uac.tokenRole (
 )
 begin
 
-    select tr.code, tr.data
+    select tr.code, tr.data, tr.token
     from uac.tokenRole tr
     where token in (
         select id from uac.token
         where token = @UACToken
     ) and tr.code = @roleCode
-    
+
 end;
