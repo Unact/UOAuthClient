@@ -100,6 +100,9 @@ begin
                 code long varchar '*:code', data long varchar '*:data'
             );
             
+
+            call uac.triggerAuthEvents (@id);
+
         end if;
         
     end if;
