@@ -19,12 +19,17 @@ begin
     end if;
     
     if @roles is null then
-        
-        if isnull(util.getUserOption('uac.emailAuth'),'0') = '0' then    
-            set @roles = util.unactGet(
-                uac.tokenDomainUrl (@domain)
-                + '/roles?access_token='+@code
-            );
+
+        if isnull(util.getUserOption('uac.emailAuth'),'0') = '0' then
+            begin
+                declare @url STRING;
+                set @url = uac.tokenDomainUrl (@domain);
+
+                set @roles = if @url = 'pha.roles'
+                    then pha.roles (@code)
+                    else util.unactGet(@url + '/roles?access_token=' + @code)
+                endif
+            end
         else
             set @roles = eac.authorize(@code);
         end if;
