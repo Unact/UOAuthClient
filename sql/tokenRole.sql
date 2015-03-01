@@ -4,7 +4,7 @@ create or replace procedure uac.tokenRole (
 )
 begin
 
-    select tr.code, tr.data, tr.token
+    select tr.code, tr.data, tr.token, tr.ts
     from uac.tokenRole tr
     where token in (
         select id from uac.token
