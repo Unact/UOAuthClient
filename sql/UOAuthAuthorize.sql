@@ -27,7 +27,7 @@ begin
 
                 set @roles = if @url = 'pha.roles'
                     then pha.roles (@code)
-                    else util.unactGet(@url + '/roles?access_token=' + @code)
+                    else uac.httpsGet(@url + '/roles?access_token=' + @code)
                 endif
             end
         else
