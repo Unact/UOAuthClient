@@ -5,19 +5,19 @@ create or replace function uac.UOAuthAuthorize(
 begin
     declare @roles xml;
     declare @id ID;
-    
+
     select roles
         into @roles
         from uac.token
     where token = @code
         and (expireTs > now() or expireTs is null)
     ;
-    
+
     if isnull(@code,'') = '' then
         set @roles = xmlelement('error', 'Token required');
         return @roles;
     end if;
-    
+
     if @roles is null then
 
         if isnull(util.getUserOption('uac.emailAuth'),'0') = '0' then
@@ -25,25 +25,22 @@ begin
                 declare @url STRING;
                 set @url = uac.tokenDomainUrl (@domain);
 
-                set @roles = if @url = 'pha.roles'
-                    then pha.roles (@code)
-                    else uac.httpsGet(@url + '/roles?access_token=' + @code)
-                endif
+                set @roles = uac.httpsGet(@url + '/roles?access_token=' + @code);
             end
         else
             set @roles = eac.authorize(@code);
         end if;
-            
+
         if exists(
             select * from openxml(@roles,'/*:response/*:roles/*:role') with(
                 code long varchar '*:code'
             ) where code = 'authenticated'
         ) then
-            
+
             message 'uac.UOAuthAuthorize @code=', @code, ' @domain=', @domain
                 DEBUG ONLY
             ;
-            
+
             merge into uac.account
                 using with auto name (
                     select
@@ -69,7 +66,7 @@ begin
                 when not matched then insert
                 when matched then update
             ;
-            
+
             insert into uac.token on existing update with auto name select
                 (select id
                     from uac.token
@@ -96,22 +93,22 @@ begin
                     )
                 )) as account
             ;
-            
+
             set @id = (select id from uac.token where token = @code);
-            
+
             insert into uac.tokenRole with auto name select
                 @id as token, code, data
             from openxml(@roles, '/*:response/*:roles/*:role') with(
                 code long varchar '*:code', data long varchar '*:data'
             );
-            
+
 
             call uac.triggerAuthEvents (@id);
 
         end if;
-        
+
     end if;
-    
+
     return @roles;
 
 end;

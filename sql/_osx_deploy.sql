@@ -1,5 +1,6 @@
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/_tables.sql;
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/account.sql;
+read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/httpsGet.sql;
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/HTTPVariableOrHeader.sql;
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/roleData.sql;
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/temporaryTables.sql;
@@ -7,5 +8,6 @@ read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/tokenDomain.sql;
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/tokenDomainURL.sql;
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/tokenRole.sql;
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/tokenRoles.sql;
+read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/triggerAuthEvents.sql;
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/UOAuthAuthorize.sql;
 read /Users/%YourUserNameHere%/Sites/UOAuthClient/sql/UOAuthRefreshToken.sql;
