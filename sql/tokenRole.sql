@@ -9,6 +9,8 @@ begin
     where token in (
         select id from uac.token
         where token = @UACToken
-    ) and tr.code = @roleCode
+    ) and (
+        tr.code = @roleCode or @roleCode is null
+    )
 
 end;
