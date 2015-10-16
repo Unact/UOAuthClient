@@ -67,6 +67,8 @@ begin
                 when matched then update
             ;
 
+            delete uac.token where token = @code;
+
             insert into uac.token on existing update with auto name select
                 (select id
                     from uac.token
