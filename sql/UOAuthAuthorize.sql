@@ -49,7 +49,7 @@ begin
                         isnull(email, string (coalesce(a.username,a.id,a.code),'@',@domain)) as email,
                         isnull(a.code,a.email) as code,
                         string (
-                            coalesce(a.id,a.code,a.username),
+                            coalesce(a.code,a.username),
                             '@',
                             @domain
                         ) as domainId
@@ -82,7 +82,7 @@ begin
                 ) as expireTs,
                 (select id from uac.account where domainId = (
                     select string (
-                        coalesce(id,code,username),
+                        coalesce(code,username),
                         '@',
                         @domain
                     ) from openxml(@roles, '/*:response/*:account')
